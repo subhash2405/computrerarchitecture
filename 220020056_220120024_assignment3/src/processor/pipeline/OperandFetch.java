@@ -166,48 +166,12 @@ public class OperandFetch {
 				default:
 						break;						
 			}
-			Instruction previnst = OF_EX_Latch.getInstruction();
-			String opcode_prev = previnst.getOperationType().toString();
-			if( opCode.equals("nop") || opcode.equals("b") || opcode.equal("beq") || opCode.equals("bgt") || opCode.equals("ret")){
-				OF_EX_Latch.setInstruction(newinst);			
-				IF_OF_Latch.setOF_enable(false);
-				OF_EX_Latch.setEX_enable(true);
-			}
-
-			else if( opcode_prev.equals("nop") || opcode_prev.equals("cmp") || opcode_prev.equals("st") || opcode_prev.equals("b") || opcode_prev.equals("beq") || opcode_prev.equals("bgt") || opcode_prev.equals("ret") ){
-				OF_EX_Latch.setInstruction(newinst);			
-				IF_OF_Latch.setOF_enable(false);
-				OF_EX_Latch.setEX_enable(true);
-			}
-
-			else{
-
-				int src1 = containingProcessor.getRegisterFile().getValue(newinst.getSourceOperand1().getValue());
-				int src2 = containingProcessor.getRegisterFile().getValue(newinst.getSourceOperand2().getValue());
-				if( opcode.equals("st")){
-					src2 = containingProcessor.getRegisterFile().getValue(newinst.getDestinationOperand().getValue());
-				}
-				if (opcode.equals("ret")){
-					src1 =                                   //check this out once (ra)
-				}
-				boolean hasSrc1=true;
-				if( opCode.equals("not") || opCode.equals("mov") ){
-					hasSrc1=false;
-				}
-				int dest = containingProcessor.getRegisterFile().getValue(previnst.getDestinationOperand().getValue());
-				if ( opcode_prev.equals("call") ){
-					dest =                                   // ra
-				}
-				boolean hasSrc2=true;
-				if( !opCode.equals("store")){
-					int I = newinst.getSourceOperand2().getValue();
-				}
-			}
-
-
-			
+			OF_EX_Latch.setInstruction(newinst);			
+			IF_OF_Latch.setOF_enable(false);
+			OF_EX_Latch.setEX_enable(true);
 		}
 	}
 
 }
+
 
