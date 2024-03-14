@@ -66,7 +66,7 @@ public class Simulator {
 			processor.getOFUnit().performOF();
 			processor.getIFUnit().performIF();
 			Clock.incrementClock();
-			numinst+=5;    //check if its correct
+			numinst+=1;    //check if its correct
 			numcycles+=1;
 		}
 		

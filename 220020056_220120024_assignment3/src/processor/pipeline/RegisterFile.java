@@ -3,7 +3,7 @@ package processor.pipeline;
 public class RegisterFile {
 	int[] registerFile;
 	int programCounter;
-	
+	int[] intregister = new int[32];
 	public RegisterFile()
 	{
 		registerFile = new int[32];
@@ -28,6 +28,20 @@ public class RegisterFile {
 	public void setProgramCounter(int programCounter)
 	{
 		this.programCounter = programCounter;
+	}
+	
+	public void setintregister(int index)
+	{
+		intregister[index]=1;
+	}
+
+	public boolean getintregister(int index)
+	{
+		if(intregister[index]==0)
+		{
+			return false;
+		}
+		return true;
 	}
 	
 	public void incrementProgramCounter()

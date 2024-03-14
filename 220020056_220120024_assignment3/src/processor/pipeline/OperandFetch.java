@@ -1,5 +1,7 @@
 package processor.pipeline;
 
+import java.io.File;
+
 import generic.Instruction;
 import generic.Operand;
 import generic.Instruction.OperationType;
@@ -10,12 +12,16 @@ public class OperandFetch {
 	Processor containingProcessor;
 	IF_OF_LatchType IF_OF_Latch;
 	OF_EX_LatchType OF_EX_Latch;
-	
-	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch)
+	RegisterFile RegisterFile;
+	IF_EnableLatchType IF_EnableLatch;
+
+	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch,RegisterFile file,IF_EnableLatchType iF_EnableLatch)
 	{
 		this.containingProcessor = containingProcessor;
 		this.IF_OF_Latch = iF_OF_Latch;
 		this.OF_EX_Latch = oF_EX_Latch;
+		this.RegisterFile = file;
+		this.IF_EnableLatch=iF_EnableLatch;
 	}
 	public String twoscomplement(String bin) {
 		String ones = "";
@@ -56,6 +62,7 @@ public class OperandFetch {
 			OperationType[] operations = OperationType.values();
 			OperationType operation = operations[Integer.parseInt(opCode,2)];
 			newinst.setOperationType(operation);
+			
 			switch(operation){
 				case add:
 				case sub:
@@ -74,12 +81,25 @@ public class OperandFetch {
 						rs2.setOperandType(OperandType.Register);
 						Operand rd = new Operand();
 						rd.setOperandType(OperandType.Register);
-						rs1.setValue(Integer.parseInt(inst.substring(5, 10),2));
-						rs2.setValue(Integer.parseInt(inst.substring(10, 15),2));
-						rd.setValue(Integer.parseInt(inst.substring(15, 20),2));
-						newinst.setSourceOperand1(rs1);
-						newinst.setSourceOperand2(rs2);
-						newinst.setDestinationOperand(rd);
+						if(RegisterFile.getintregister(Integer.parseInt(inst.substring(5, 10),2))==false && RegisterFile.getintregister(Integer.parseInt(inst.substring(10, 15),2))==false)
+						{
+							rs1.setValue(Integer.parseInt(inst.substring(5, 10),2));
+							rs2.setValue(Integer.parseInt(inst.substring(10, 15),2));
+							newinst.setSourceOperand1(rs1);
+							newinst.setSourceOperand2(rs2);
+						}
+						else
+						{
+							int currentPC = containingProcessor.getRegisterFile().getProgramCounter();
+							containingProcessor.getRegisterFile().setProgramCounter(currentPC - 1);
+						}
+						int index = Integer.parseInt(inst.substring(15, 20),2);
+						if(RegisterFile.getintregister(index)==false)
+						{
+							rd.setValue(Integer.parseInt(inst.substring(15, 20),2));
+							newinst.setDestinationOperand(rd);
+							RegisterFile.setintregister(index);
+						}
 						break;
 				case addi:
 				case andi:
