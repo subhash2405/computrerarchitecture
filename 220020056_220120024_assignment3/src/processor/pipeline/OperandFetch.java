@@ -1,7 +1,4 @@
 package processor.pipeline;
-
-import java.io.File;
-
 import generic.Instruction;
 import generic.Operand;
 import generic.Instruction.OperationType;
@@ -14,14 +11,12 @@ public class OperandFetch {
 	OF_EX_LatchType OF_EX_Latch;
 	RegisterFile RegisterFile;
 	IF_EnableLatchType IF_EnableLatch;
-
-	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch,RegisterFile file,IF_EnableLatchType iF_EnableLatch)
+	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch,RegisterFile file)
 	{
 		this.containingProcessor = containingProcessor;
 		this.IF_OF_Latch = iF_OF_Latch;
 		this.OF_EX_Latch = oF_EX_Latch;
 		this.RegisterFile = file;
-		this.IF_EnableLatch=iF_EnableLatch;
 	}
 	public String twoscomplement(String bin) {
 		String ones = "";
@@ -92,6 +87,7 @@ public class OperandFetch {
 						{
 							int currentPC = containingProcessor.getRegisterFile().getProgramCounter();
 							containingProcessor.getRegisterFile().setProgramCounter(currentPC - 1);
+							IF_OF_Latch.setcheck(1);
 						}
 						int index = Integer.parseInt(inst.substring(15, 20),2);
 						if(RegisterFile.getintregister(index)==false)
@@ -114,6 +110,7 @@ public class OperandFetch {
 				case divi:
 				case store:
 				case load:
+						//TODO replicate above logic
 						Operand rsi1 = new Operand();
 						rsi1.setOperandType(OperandType.Register);
 						Operand rdi = new Operand();
@@ -186,12 +183,19 @@ public class OperandFetch {
 				default:
 						break;						
 			}
-			OF_EX_Latch.setInstruction(newinst);			
 			IF_OF_Latch.setOF_enable(false);
-			OF_EX_Latch.setEX_enable(true);
+			if(IF_OF_Latch.getcheck()==0)
+			{
+				OF_EX_Latch.setInstruction(newinst);			
+				OF_EX_Latch.setEX_enable(true);
+			}
+			else
+			{
+				OF_EX_Latch.setEX_enable(false);
+				IF_OF_Latch.setInstruction(Integer.parseInt(inst));
+			}
 		}
 	}
-
 }
 
 

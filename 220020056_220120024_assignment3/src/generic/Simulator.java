@@ -2,7 +2,6 @@ package generic;
 
 import processor.Clock;
 import processor.Processor;
-import java.util.*;
 import java.io.*;
 
 public class Simulator {

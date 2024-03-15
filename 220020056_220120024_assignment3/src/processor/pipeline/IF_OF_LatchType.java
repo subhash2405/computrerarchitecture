@@ -4,7 +4,8 @@ public class IF_OF_LatchType {
 	
 	boolean OF_enable;
 	int instruction;
-	
+	int check=0;
+
 	public IF_OF_LatchType()
 	{
 		OF_enable = false;
@@ -25,5 +26,12 @@ public class IF_OF_LatchType {
 	public void setInstruction(int instruction) {
 		this.instruction = instruction;
 	}
-
+	public void setcheck(int num)
+	{
+		check=num;
+	}
+	public int getcheck()
+	{
+		return check;
+	}
 }
