@@ -6,10 +6,12 @@ public class OF_EX_LatchType {
 	
 	boolean EX_enable;
 	Instruction instruction;
+	boolean check;
 	
 	public OF_EX_LatchType()
 	{
 		EX_enable = false;
+		check=false;
 	}
 	public OF_EX_LatchType(boolean eX_enable) {  // constructor that sets enable as well
 		EX_enable = eX_enable;
@@ -33,5 +35,13 @@ public class OF_EX_LatchType {
 
 	public Instruction getInstruction() { // get instruction that was just executed
 		return this.instruction;
+	}
+
+	public boolean getcheck(){
+		return check;
+	}
+
+	public void setcheck(boolean Check){
+		check= Check;
 	}
 }

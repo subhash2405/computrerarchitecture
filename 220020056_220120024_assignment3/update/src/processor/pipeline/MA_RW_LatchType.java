@@ -7,10 +7,12 @@ public class MA_RW_LatchType {
 	Instruction instruction;
 	int aluResult;
 	int ldResult;
+	boolean check;
 	
 	public MA_RW_LatchType()
 	{
 		RW_enable = false;
+		check= false;
 	}
 
 	public MA_RW_LatchType(boolean rW_enable)
@@ -69,6 +71,14 @@ public class MA_RW_LatchType {
 
 	public void setRW_enable(boolean rW_enable) {
 		RW_enable = rW_enable;
+	}
+
+	public boolean getcheck() {
+		return nop;
+	}
+	
+	public void setcheck(boolean Check) {
+		check = Check;
 	}
 
 }

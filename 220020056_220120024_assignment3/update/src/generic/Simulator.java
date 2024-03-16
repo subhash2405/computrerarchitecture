@@ -60,24 +60,32 @@ public class Simulator {
 		int numcycles=0;
 		while(simulationComplete == false)
 		{
-			processor.getIFUnit().performIF();
-			Clock.incrementClock();
-			processor.getOFUnit().performOF();
-			Clock.incrementClock();
-			processor.getEXUnit().performEX();
-			Clock.incrementClock();
-			processor.getMAUnit().performMA();
-			Clock.incrementClock();
 			processor.getRWUnit().performRW();
 			Clock.incrementClock();
+			processor.getMAUnit().performMA();
+			Clock.incrementClock();	
+			processor.getEXUnit().performEX();
+			Clock.incrementClock();	
+			processor.getOFUnit().performOF();
+			Clock.incrementClock();
+			processor.getIFUnit().performIF();
+			Clock.incrementClock();
+
 			numinst+=1;
 			numcycles+=1;
+
+			Statistics.setNumberOfInstructions(numinst);
+			Statistics.setNumberOfCycles(numcycles);
+			// Statistics.setNumberOfInstructions(Statistics.getNumberOfInstructions() + 1);
+			// Statistics.setNumberOfCycles(Statistics.getNumberOfCycles() + 1);
+
+
+			// might have to add this    System.out.println("Number of Wrong Branch Instructions: " + Statistics.getNumberOfBranchTaken());
+
 		}
 		
 		// TODO
 		// set statistics
-		Statistics.setNumberOfInstructions(numinst);
-		Statistics.setNumberOfCycles(numcycles);
 		// Statistics.setCPI(numinst, numcycles);
 
 	}

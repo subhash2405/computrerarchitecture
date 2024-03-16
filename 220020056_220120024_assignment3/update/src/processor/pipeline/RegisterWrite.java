@@ -2,6 +2,7 @@ package processor.pipeline;
 
 import generic.Instruction.OperationType;
 import generic.Simulator;
+import generic.statistics;
 import processor.Processor;
 import generic.Instruction;
 
@@ -29,6 +30,9 @@ public class RegisterWrite {
 			int aluResult;
 
 			op=instruction.getOperationType().toString();
+			//check this once
+			Statistics.setnumberOfRegisterWriteInstructions(Statistics.getNumberOfRegisterWriteInstructions() + 1);
+
 			if(op.equals("store")||op.equals("jmp")||op.equals("beq")||op.equals("blt")||op.equals("bne")||op.equals("bgt")){
 				// nothing, just get out of this if-else clause
 			}
@@ -46,7 +50,12 @@ public class RegisterWrite {
 				containingProcessor.getRegisterFile().setValue(rd,aluResult);
 			}
 			MA_RW_Latch.setRW_enable(false);
+			if(!op.equals("end"))
 			IF_EnableLatch.setIF_enable(true);
+		}
+
+		else if(MA_RW_Latch.getcheck()){
+			MA_RW_Latch.setcheck(false);
 		}
 	}
 

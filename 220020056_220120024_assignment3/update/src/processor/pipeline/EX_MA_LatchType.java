@@ -7,11 +7,13 @@ public class EX_MA_LatchType {
 	boolean MA_enable;
 	Instruction instruction;
 	int aluResult;
+	boolean check;
 	
 	// constructor
 	public EX_MA_LatchType()
 	{
 		MA_enable = false;
+		check = false;
 	}
 	
 	public EX_MA_LatchType(boolean mA_enable)
@@ -61,5 +63,13 @@ public class EX_MA_LatchType {
 	public void setInstruction(Instruction iNstruction)
 	{
 		instruction = iNstruction;
+	}
+
+	public boolean getcheck(){
+		return check;
+	}
+
+	public void setcheck(boolean Check){
+		check = Check;
 	}
 }
