@@ -1,176 +1,262 @@
 package processor.pipeline;
 
-import generic.Instruction;
-import generic.Operand;
-import generic.Instruction.OperationType;
-import generic.Operand.OperandType;
 import processor.Processor;
+import generic.Instruction;
+import generic.Instruction.OperationType;
+import generic.Operand;
+import generic.Statistics;
+import generic.Operand.OperandType;
 
 public class OperandFetch {
 	Processor containingProcessor;
 	IF_OF_LatchType IF_OF_Latch;
 	OF_EX_LatchType OF_EX_Latch;
-	
-	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch)
-	{
+	EX_MA_LatchType EX_MA_Latch;
+	MA_RW_LatchType MA_RW_Latch;
+	IF_EnableLatchType IF_EnableLatch;
+
+	public OperandFetch(Processor containingProcessor, IF_OF_LatchType iF_OF_Latch, OF_EX_LatchType oF_EX_Latch, EX_MA_LatchType eX_MA_Latch, MA_RW_LatchType mA_RW_Latch, IF_EnableLatchType iF_EnableLatch) {
 		this.containingProcessor = containingProcessor;
-		this.IF_OF_Latch = iF_OF_Latch;
 		this.OF_EX_Latch = oF_EX_Latch;
+		this.IF_OF_Latch = iF_OF_Latch;
+		this.MA_RW_Latch = mA_RW_Latch;
+		this.EX_MA_Latch = eX_MA_Latch;
+		this.IF_EnableLatch = iF_EnableLatch;
 	}
-	public String twoscomplement(String bin) {
-		String ones = "";
-		for (int i = 0; i < bin.length(); i++) {
-			if (bin.charAt(i) == '1') {
-				ones += '0';
-			} else {
-				ones += '1';
-			}
-		}
-		
-		String twos = "";
-		boolean carry = true; 
-		for (int i = bin.length() - 1; i >= 0; i--) {
-			if (ones.charAt(i) == '1' && carry) {
-				twos = '0' + twos; // Add 0 when there's a carry
-			} else if (ones.charAt(i) == '0' && carry) {
-				twos = '1' + twos; // Add 1 when there's no carry
-				carry = false; // Reset carry flag
-			} else {
-				twos = ones.charAt(i) + twos; // Add the remaining bits
-			}
-		}
-		return twos;
-	}
-	public void performOF() 
+	    public String twosComplement(String bin) {
+        StringBuilder onesBuilder = new StringBuilder();
+        StringBuilder twosBuilder = new StringBuilder();
+        boolean carry = true;
+
+        // Calculate ones complement
+        for (int i = 0; i < bin.length(); i++) {
+            char bit = bin.charAt(i);
+            onesBuilder.append((bit == '1') ? '0' : '1');
+        }
+
+        // Calculate twos complement
+        for (int i = bin.length() - 1; i >= 0; i--) {
+            char bit = onesBuilder.charAt(i);
+            if (bit == '1' && carry) {
+                twosBuilder.insert(0, '0'); // Add 0 when there's a carry
+            } else if (bit == '0' && carry) {
+                twosBuilder.insert(0, '1'); // Add 1 when there's no carry
+                carry = false; // Reset carry flag
+            } else {
+                twosBuilder.insert(0, bit); // Add the remaining bits
+            }
+        }
+
+        return twosBuilder.toString();
+    }
+	
+	public boolean hazardflag(Instruction instruction, int r1, int r2)
 	{
-		if(IF_OF_Latch.isOF_enable())
-		{
-			//TOD
-			Instruction newinst = new Instruction();
-			String inst = Integer.toBinaryString(IF_OF_Latch.getInstruction());
-			int csize = inst.length();
-			csize = 32-csize;
-			for(int i=1;i<=csize;i++)
-				inst = '0' + inst;
-			String opCode = inst.substring(0,5);
-			OperationType[] operations = OperationType.values();
-			OperationType operation = operations[Integer.parseInt(opCode,2)];
-			newinst.setOperationType(operation);
-			switch(operation){
-				case add:
-				case sub:
-				case mul:
-				case div:
-				case and:
-				case or:
-				case xor:
-				case slt:
-				case sll:
-				case srl:
-				case sra:
-						Operand rs1 = new Operand();
-						rs1.setOperandType(OperandType.Register);
-						Operand rs2 = new Operand();
-						rs2.setOperandType(OperandType.Register);
-						Operand rd = new Operand();
-						rd.setOperandType(OperandType.Register);
-						rs1.setValue(Integer.parseInt(inst.substring(5, 10),2));
-						rs2.setValue(Integer.parseInt(inst.substring(10, 15),2));
-						rd.setValue(Integer.parseInt(inst.substring(15, 20),2));
-						newinst.setSourceOperand1(rs1);
-						newinst.setSourceOperand2(rs2);
-						newinst.setDestinationOperand(rd);
-						break;
-				case addi:
-				case andi:
-				case muli:
-				case ori:
-				case slli:
-				case slti:
-				case srai:
-				case srli:
-				case subi:
-				case xori:
-				case divi:
-				case store:
-				case load:
-						Operand rsi1 = new Operand();
-						rsi1.setOperandType(OperandType.Register);
-						Operand rdi = new Operand();
-						rdi.setOperandType(OperandType.Register);
-						rsi1.setValue(Integer.parseInt(inst.substring(5, 10),2));
-						rdi.setValue(Integer.parseInt(inst.substring(10, 15),2));
-						Operand imm = new Operand();
-						imm.setOperandType(OperandType.Immediate);
-						String immd = inst.substring(15,32);
-						if(immd.charAt(0)=='1')
-						{
-							immd = twoscomplement(immd);
-							imm.setValue(-1*Integer.parseInt(immd,2));
-						}
-						else
-						{
-							imm.setValue(Integer.parseInt(immd,2));
-						}
-						newinst.setSourceOperand1(rsi1);
-						newinst.setSourceOperand2(imm);
-						newinst.setDestinationOperand(rdi);
-						break;
-				case jmp:
-						Operand rdj = new Operand();
-						rdj.setOperandType(OperandType.Register);
-						Operand immj = new Operand();
-						immj.setOperandType(OperandType.Immediate);
-						rdj.setValue(Integer.parseInt(inst.substring(5, 10),2));
-						String imme = inst.substring(10,32);
-						if(imme.charAt(0)=='1')
-						{
-							imme = twoscomplement(imme);
-							immj.setValue(-1*Integer.parseInt(imme,2));
-						}
-						else
-						{
-							immj.setValue(Integer.parseInt(imme,2));
-						}
-						newinst.setDestinationOperand(immj);
-						newinst.setSourceOperand1(rdj);
-						break;
-				case end:
-						break;
-				case beq:
-				case bgt:
-				case blt:
-				case bne:
-						Operand rsb = new Operand();
-						rsb.setOperandType(OperandType.Register);
-						Operand rdb = new Operand();
-						rdb.setOperandType(OperandType.Register);
-						Operand immb = new Operand();
-						immb.setOperandType(OperandType.Immediate);
-						rsb.setValue(Integer.parseInt(inst.substring(5, 10),2));
-						rdb.setValue(Integer.parseInt(inst.substring(10, 15),2));
-						String imm1 = inst.substring(15,32);
-						if(imm1.charAt(0)=='1')
-						{
-							imm1 = twoscomplement(imm1);
-							immb.setValue(-1*Integer.parseInt(imm1,2));
-						}
-						else
-						{
-							immb.setValue(Integer.parseInt(imm1,2));
-						}
-						newinst.setSourceOperand1(rsb);
-						newinst.setSourceOperand2(rdb);
-						newinst.setDestinationOperand(immb);
-						break;
-				default:
-						break;						
+		if(instruction!=null && instruction.getOperationType()!=null){
+			int instNumber =instruction.getOperationType().ordinal();
+			if ((instNumber <= 21 && instNumber % 2 == 0) || (instNumber <= 21 && instNumber % 2 != 0) || instNumber == 22 || instNumber == 23) {
+				int dest_reg = instruction != null ? instruction.getDestinationOperand().getValue() : -1;
+				if (r1 == dest_reg || r2 == dest_reg) {
+					return true;
+				}
+			} 
+			else if((instNumber == 6 || instNumber ==7)&&(r1 == 31)||r2 == 31){
+				return true;
 			}
-			OF_EX_Latch.setInstruction(newinst);			
-			IF_OF_Latch.setOF_enable(false);
+		}
+		return false;
+		}
+
+	
+	public void PCchanger() {
+		System.out.println("Possible Hazard!");
+		OF_EX_Latch.setcheck(true);
+		IF_EnableLatch.setIF_enable(false);
+	}
+ 	
+	public void performOF() {
+		if (IF_OF_Latch.isOF_enable()) {
+			Statistics.setNumberOfOFInstructions(Statistics.getNumberOfOFInstructions() + 1);
+			OperationType[] operationType = OperationType.values();
+			String instruction = Integer.toBinaryString(IF_OF_Latch.getInstruction());
+			System.out.println("OF is enabled with instruction: " + instruction + "..");
+			while (instruction.length() != 32) {
+				instruction = "0" + instruction;
+			}
+			String opcode = instruction.substring(0, 5);
+			int type_operation = Integer.parseInt(opcode, 2);
+			OperationType operation = operationType[type_operation];
+			
+			switch (operation.ordinal()) {
+				case 24:
+				case 25:
+				case 26:
+				case 27:
+				case 28:
+					IF_EnableLatch.setIF_enable(false);
+					break;
+				default:
+					break;
+			}
+			
+			boolean hazard_inst = false;
+			Instruction instruction_ex_stage = OF_EX_Latch.getInstruction();
+			Instruction instruction_rw_stage = MA_RW_Latch.getInstruction();
+			Instruction instruction_ma_stage = EX_MA_Latch.getInstruction();
+			Instruction inst = new Instruction();
+			switch (operation) {
+			case add:
+			case sub:
+			case mul:
+			case div:
+			case and:
+			case or:
+			case xor:
+			case slt:
+			case sll:
+			case srl:
+			case sra:
+				Operand rs1 = new Operand();
+				rs1.setOperandType(OperandType.Register);
+				int registerNo = Integer.parseInt(instruction.substring(5, 10), 2);
+				rs1.setValue(registerNo);
+
+				Operand rs2 = new Operand();
+				rs2.setOperandType(OperandType.Register);
+				int registerNo2 = Integer.parseInt(instruction.substring(10, 15), 2);
+				rs2.setValue(registerNo2);
+				if (hazardflag(instruction_ex_stage, registerNo, registerNo2))
+					hazard_inst= true;
+				if (hazardflag(instruction_ma_stage, registerNo, registerNo2))
+					hazard_inst = true;
+				if (hazardflag(instruction_rw_stage, registerNo, registerNo2))
+					hazard_inst = true;
+				if (hazard_inst) {
+					this.PCchanger();
+					break;
+				}
+
+				Operand rd = new Operand();
+				rd.setOperandType(OperandType.Register);
+				registerNo = Integer.parseInt(instruction.substring(15, 20), 2);
+				rd.setValue(registerNo);
+
+				inst.setSourceOperand1(rs1);
+				inst.setOperationType(operationType[type_operation]);
+				inst.setDestinationOperand(rd);
+				inst.setSourceOperand2(rs2);
+				break;
+			case end:
+				inst.setOperationType(operationType[type_operation]);
+				IF_EnableLatch.setIF_enable(false);
+				break;
+			case jmp:
+				Operand op = new Operand();
+				String imm = instruction.substring(10, 32);
+				int imm_val = Integer.parseInt(imm, 2);
+				if (imm.charAt(0) == '1') {
+					imm = twosComplement(imm);
+					imm_val = Integer.parseInt(imm, 2) * -1;
+				}
+				if (imm_val != 0) {
+					op.setOperandType(OperandType.Immediate);
+					op.setValue(imm_val);
+				} else {
+					int registerno = Integer.parseInt(instruction.substring(5, 10), 2);
+					op.setOperandType(OperandType.Register);
+					op.setValue(registerno);
+				}
+
+				inst.setDestinationOperand(op);
+				inst.setOperationType(operationType[type_operation]);
+				break;
+
+			case beq:
+			case bne:
+			case blt:
+			case bgt:
+				rs1 = new Operand();
+				rs1.setOperandType(OperandType.Register);
+				int RegisterNo = Integer.parseInt(instruction.substring(5, 10), 2);
+				rs1.setValue(RegisterNo);
+				
+				// destination register
+				rs2 = new Operand();
+				rs2.setOperandType(OperandType.Register);
+				int RegisterNo2 = Integer.parseInt(instruction.substring(10, 15), 2);
+				rs2.setValue(RegisterNo2);
+				
+				if (hazardflag(instruction_ex_stage, RegisterNo, RegisterNo2))
+					hazard_inst = true;
+				if (hazardflag(instruction_ma_stage, RegisterNo, RegisterNo2))
+					hazard_inst = true;
+				if (hazardflag(instruction_rw_stage, RegisterNo, RegisterNo2))
+					hazard_inst = true;
+				if (hazard_inst) {
+					this.PCchanger();
+					break;
+				}
+				rd = new Operand();
+				rd.setOperandType(OperandType.Immediate);
+				imm = instruction.substring(15, 32);
+				imm_val = Integer.parseInt(imm, 2);
+				if (imm.charAt(0) == '1') {
+					imm = twosComplement(imm);
+					imm_val = Integer.parseInt(imm, 2) * -1;
+				}
+				rd.setValue(imm_val);
+				
+				inst.setSourceOperand1(rs1);
+				inst.setOperationType(operationType[type_operation]);
+				inst.setDestinationOperand(rd);
+				inst.setSourceOperand2(rs2);
+				break;
+
+			default:
+				rs1 = new Operand();
+				rs1.setOperandType(OperandType.Register);
+				registerNo = Integer.parseInt(instruction.substring(5, 10), 2);
+				rs1.setValue(registerNo);
+				if (hazardflag(instruction_ex_stage, registerNo, registerNo)) {
+					hazard_inst = true;
+				}	
+				if (hazardflag(instruction_ma_stage, registerNo, registerNo)) {
+					hazard_inst = true;
+				}
+				if (hazardflag(instruction_rw_stage, registerNo, registerNo)) {
+					hazard_inst = true;
+				}
+					
+				if (hazard_inst) {
+					this.PCchanger();
+					break;
+				}
+
+				// Destination register
+				rd = new Operand();
+				rd.setOperandType(OperandType.Register);
+				registerNo = Integer.parseInt(instruction.substring(10, 15), 2);
+				rd.setValue(registerNo);
+
+				// Immediate values
+				rs2 = new Operand();
+				rs2.setOperandType(OperandType.Immediate);
+				imm = instruction.substring(15, 32);
+				imm_val = Integer.parseInt(imm, 2);
+				if (imm.charAt(0) == '1') {
+					imm = twosComplement(imm);
+					imm_val = Integer.parseInt(imm, 2) * -1;
+				}
+				rs2.setValue(imm_val);
+				inst.setOperationType(operationType[type_operation]);
+				inst.setSourceOperand2(rs2);
+				inst.setSourceOperand1(rs1);
+				inst.setDestinationOperand(rd);
+				break;
+			}
+			OF_EX_Latch.setInstruction(inst);
 			OF_EX_Latch.setEX_enable(true);
 		}
 	}
 
 }
-

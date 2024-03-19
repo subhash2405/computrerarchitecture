@@ -2,7 +2,7 @@ package processor.pipeline;
 
 import generic.Instruction.OperationType;
 import generic.Simulator;
-import generic.statistics;
+import generic.Statistics;
 import processor.Processor;
 import generic.Instruction;
 

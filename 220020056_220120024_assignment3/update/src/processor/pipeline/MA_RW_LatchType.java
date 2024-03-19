@@ -74,7 +74,7 @@ public class MA_RW_LatchType {
 	}
 
 	public boolean getcheck() {
-		return nop;
+		return check;
 	}
 	
 	public void setcheck(boolean Check) {

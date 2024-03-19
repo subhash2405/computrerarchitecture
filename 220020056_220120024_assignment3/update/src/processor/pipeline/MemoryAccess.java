@@ -2,7 +2,7 @@ package processor.pipeline;
 
 import processor.Processor;
 import generic.Instruction;
-import generic.Instruction.OperationTyoe;
+import generic.Instruction.OperationType;
 
 public class MemoryAccess {
 	Processor containingProcessor;
@@ -25,7 +25,12 @@ public class MemoryAccess {
 	public void performMA()
 	{
 		//TODO
-		if(EX_MA_Latch.isMA_enable()){
+		if (EX_MA_Latch.getcheck()) {
+			MA_RW_Latch.setcheck(true);
+			MA_RW_Latch.setInstruction(null);
+			EX_MA_Latch.setcheck(false);
+		} 
+		else if(EX_MA_Latch.isMA_enable()){
 			instruction=EX_MA_Latch.getInstruction();
 			aluResult=EX_MA_Latch.getaluResult();
 			String op=instruction.getOperationType().toString();
@@ -40,20 +45,16 @@ public class MemoryAccess {
 				containingProcessor.getMainMemory().setWord(aluResult,val);
 			}
 
-			// if (instruction.getOperationType().ordinal() == 29) {
-			// 	IF_EnableLatch.setIF_enable(false);
-			// }   checkout with the ordinal part
+			if (instruction.getOperationType().ordinal() == 29) {
+				IF_EnableLatch.setIF_enable(false);
+			}   
 
 			MA_RW_Latch.setInstruction(instruction);
 			//EX_MA_Latch.setMA_enable(false);
 			MA_RW_Latch.setRW_enable(true);
 		}
 
-		else if (EX_MA_Latch.getcheck()) {
-			MA_RW_Latch.setcheck(true);
-			MA_RW_Latch.setInstruction(null);
-			EX_MA_Latch.setcheck(false);
-		} 
+		
 	}
 
 }
