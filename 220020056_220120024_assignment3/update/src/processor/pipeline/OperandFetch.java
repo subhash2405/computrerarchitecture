@@ -133,6 +133,7 @@ public class OperandFetch {
 					hazard_inst = true;
 				if (hazard_inst) {
 					this.PCchanger();
+					Statistics.setofstalls(Statistics.getofstalls()+1);
 					break;
 				}
 
@@ -194,6 +195,7 @@ public class OperandFetch {
 					hazard_inst = true;
 				if (hazard_inst) {
 					this.PCchanger();
+					Statistics.setofstalls(Statistics.getofstalls()+1);
 					break;
 				}
 				rd = new Operand();
@@ -229,6 +231,7 @@ public class OperandFetch {
 					
 				if (hazard_inst) {
 					this.PCchanger();
+					Statistics.setofstalls(Statistics.getofstalls()+1);
 					break;
 				}
 

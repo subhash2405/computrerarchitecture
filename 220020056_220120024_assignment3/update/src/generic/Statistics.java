@@ -10,7 +10,8 @@ public class Statistics {
 	static int numberOfCycles;
 	static int numberOfBranchTaken;
 	static int numberOfRegisterWriteInstructions;
-
+	static int numberofWrongInstructions;
+	static int numberOFStalls;
 
 
 	public static void printStatistics(String statFile)
@@ -20,8 +21,9 @@ public class Statistics {
 			PrintWriter writer = new PrintWriter(statFile);
 			
 			writer.println("Number of instructions executed = " + numberOfInstructions);
-			writer.println("Number of cycles taken = " + numberOfCycles);
-			
+			writer.println("Number of OF Stage stalls = " + numberOFStalls);
+			writer.println("Number of Branch Taken = " + numberOfBranchTaken);
+			writer.println("Number of Wrong Branches Instructions = " + numberofWrongInstructions);
 			// TODO add code here to print statistics in the output file
 			
 			writer.close();
@@ -53,6 +55,20 @@ public class Statistics {
 	// public static float getCPI() {
 	// 	return CPI;
 	// }
+	public static void setwronginstructions(int wronginst)
+	{
+		numberofWrongInstructions=wronginst;
+	}
+	public static int getwronginstructions() {
+		return numberofWrongInstructions;
+	}
+	public static void setofstalls(int ofinst)
+	{
+		numberOFStalls=ofinst;
+	}
+	public static int getofstalls() {
+		return numberOFStalls;
+	}
 	public static void setNumberOfOFInstructions(int numberOfOFStageInstructions) {
 		Statistics.numberOfOFStageInstructions = numberOfOFStageInstructions;
 	}

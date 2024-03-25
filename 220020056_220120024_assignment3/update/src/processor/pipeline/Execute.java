@@ -334,6 +334,7 @@ public class Execute {
 					imm = instruction.getDestinationOperand().getValue();
 				}
 				alu_result = imm + currentPC;
+				Statistics.setwronginstructions(Statistics.getwronginstructions()+2);
 				EX_IF_Latch.setIsBranch_enable(true, alu_result);
 			} 
 			else if (op_type.equals(OperationType.store)) {
@@ -348,12 +349,14 @@ public class Execute {
 					if (op1 == op2) {
 						isBranch = true;
 						alu_result = imm + currentPC;
+						Statistics.setwronginstructions(Statistics.getwronginstructions()+2);
 						EX_IF_Latch.setIsBranch_enable(true, alu_result);
 					}
 				}else if (op_type == OperationType.blt) {
 					if (op1 < op2) {
 						isBranch = true;
 						alu_result = imm + currentPC;
+						Statistics.setwronginstructions(Statistics.getwronginstructions()+2);
 						EX_IF_Latch.setIsBranch_enable(true, alu_result);
 					}
 				}
@@ -361,12 +364,14 @@ public class Execute {
 					if (op1 != op2) {
 						isBranch = true;
 						alu_result = imm + currentPC;
+						Statistics.setwronginstructions(Statistics.getwronginstructions()+2);
 						EX_IF_Latch.setIsBranch_enable(true, alu_result);
 					}
 				}  else if (op_type == OperationType.bgt) {
 					if (op1 > op2) {
 						isBranch = true;
 						alu_result = imm + currentPC;
+						Statistics.setwronginstructions(Statistics.getwronginstructions()+2);
 						EX_IF_Latch.setIsBranch_enable(true, alu_result);
 					}
 				}

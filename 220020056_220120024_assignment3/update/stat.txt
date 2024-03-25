@@ -1,2 +1,4 @@
 Number of instructions executed = 116
-Number of cycles taken = 116
+Number of OF Stage stalls = 39
+Number of Branch Taken = 18
+Number of Wrong Branches Instructions = 14
